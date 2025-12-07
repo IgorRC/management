@@ -1,8 +1,14 @@
 package com.gniuscode.sie.management.common.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
-
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ApiResponse <T>{
 
     private boolean success;
@@ -24,7 +30,7 @@ public class ApiResponse <T>{
         this.timestamp = LocalDateTime.now();
     }
 
-//    public static <T> ApiResponse<T> error(String message, T data){
-//        return new ApiResponse<>(false,message,data,LocalDateTime.now());
-//    }
+    public static <T> ApiResponse<T> error(String message, T data){
+        return new ApiResponse<>(false,message,data,LocalDateTime.now());
+    }
 }
