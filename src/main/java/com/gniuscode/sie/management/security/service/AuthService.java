@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Set;
@@ -24,19 +25,17 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final UserDetailsService userDetailsService;
 
     public AuthResponse login(LoginRequest loginRequest) {
-        authenticationManager.authenticate(
+        var authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
         );
 
-        User user = userRepository.findByUsername(loginRequest.getUsername())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "username", loginRequest.getUsername()));
+        var userDetails = (UserDetails) authentication.getPrincipal();
+        String jwtToke = jwtService.generateToken(userDetails);
 
-        //El metodo generateToken recibe un user detail
-        String jwtToke = jwtService.generateToken((UserDetails) user);
-
-        return new AuthResponse(jwtToke,user.getUsername());
+        return new AuthResponse(jwtToke,userDetails.getUsername());
     }
 
     public AuthResponse register(RegisterRequest registerRequest) {
@@ -55,8 +54,8 @@ public class AuthService {
         user.setEnabled(true);
         userRepository.save(user);
 
-        //El metodo generateToken recibe un user detail
-        String jwtToke = jwtService.generateToken((UserDetails) user);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
+        String jwtToke = jwtService.generateToken(userDetails);
         return new AuthResponse(jwtToke,user.getUsername());
     }
 }
