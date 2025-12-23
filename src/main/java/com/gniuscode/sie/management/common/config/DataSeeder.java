@@ -33,6 +33,12 @@ public class DataSeeder {
 
     @Transactional
     public void seedSecurityData(){
+        Permission permMetric = createPermissionIfNotFound("VIEW_METRICS");
+        Permission permUsers = createPermissionIfNotFound("MANAGE_USERS");
+        Permission permReports = createPermissionIfNotFound("VIEW_REPORTS");
+
+        Role roleAdmin = createRoleIfNotFound("ROLE_ADMIN", Set.of(permMetric, permUsers, permReports));
+        Role roleUser = createRoleIfNotFound("ROLE_USER", Set.of(permUsers, permReports));
 
     }
 
