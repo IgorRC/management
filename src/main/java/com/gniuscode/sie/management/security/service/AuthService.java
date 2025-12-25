@@ -15,7 +15,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,14 +48,16 @@ public class AuthService {
             throw new RuntimeException("Username already exists");
         }
 
-        Role userRole = roleRepository.findByName("ROLE_USER")
-                .orElseThrow(() -> new ResourceNotFoundException("Role", "username", "ROLE_USER"));
+        Set<Role> roles = new HashSet<>();
+        for(String role : registerRequest.getRoles()){
+            roles.add(roleRepository.findByName(role).orElseThrow());
+        }
 
         User user = new User();
         user.setUsername(registerRequest.getUsername());
         user.setEmail(registerRequest.getEmail());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        user.setRoles(Set.of(userRole));
+        user.setRoles(roles);
         user.setEnabled(true);
         userRepository.save(user);
 
