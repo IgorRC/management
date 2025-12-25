@@ -33,13 +33,43 @@ public class DataSeeder {
 
     @Transactional
     public void seedSecurityData(){
-        Permission permMetric = createPermissionIfNotFound("VIEW_METRICS");
-        Permission permUsers = createPermissionIfNotFound("MANAGE_USERS");
-        Permission permReports = createPermissionIfNotFound("VIEW_REPORTS");
+        // --- 1. DEFINICIÓN DE PERMISOS ---
+        // Módulo Seguridad
+        Permission pSecUserRead = createPermissionIfNotFound("SEC_USER_READ");
+        Permission pSecUserCreate = createPermissionIfNotFound("SEC_USER_CREATE");
 
-        Role roleAdmin = createRoleIfNotFound("ROLE_ADMIN", Set.of(permMetric, permUsers, permReports));
-        Role roleUser = createRoleIfNotFound("ROLE_USER", Set.of(permUsers, permReports));
+        // Módulo RRHH (Recursos Humanos)
+        Permission pHrEmpRead = createPermissionIfNotFound("HR_EMPLOYEE_READ");
+        Permission pHrEmpCreate = createPermissionIfNotFound("HR_EMPLOYEE_CREATE");
+        Permission pHrEmpEdit = createPermissionIfNotFound("HR_EMPLOYEE_UPDATE");
+        Permission pHrSalaryRead = createPermissionIfNotFound("HR_SALARY_READ"); // ¡Sensible!
 
+        // Permisos Generales
+        Permission pMyProfile = createPermissionIfNotFound("MY_PROFILE_READ");
+
+        // --- 2. DEFINICIÓN DE ROLES (Agrupación) ---
+
+        // ROL: ADMIN (Todo poderoso)
+        createRoleIfNotFound("ROLE_ADMIN", Set.of(
+                pSecUserRead, pSecUserCreate,
+                pHrEmpRead, pHrEmpCreate, pHrEmpEdit, pHrSalaryRead,
+                pMyProfile
+        ));
+
+        // ROL: GERENTE RRHH (Ve todo lo de RRHH, incluyendo sueldos)
+        createRoleIfNotFound("ROLE_HR_MANAGER", Set.of(
+                pHrEmpRead, pHrEmpCreate, pHrEmpEdit, pHrSalaryRead,
+                pMyProfile, pSecUserRead
+        ));
+
+        // ROL: ASISTENTE RRHH (Operativo, NO ve sueldos)
+        createRoleIfNotFound("ROLE_HR_ASSISTANT", Set.of(
+                pHrEmpRead, pHrEmpCreate, pHrEmpEdit,
+                pMyProfile
+        ));
+
+        // ROL: EMPLEADO (Base)
+        Role roleEmployee = createRoleIfNotFound("ROLE_EMPLOYEE", Set.of(pMyProfile));
     }
 
     //metodos aux
