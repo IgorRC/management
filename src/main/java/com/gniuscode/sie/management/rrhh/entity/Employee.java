@@ -2,9 +2,17 @@ package com.gniuscode.sie.management.rrhh.entity;
 
 import com.gniuscode.sie.management.security.entity.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+@Entity
+@Table(name = "employees", schema = "rrhh")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Employee {
 
     @Id
